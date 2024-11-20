@@ -1,15 +1,15 @@
-import React, { useState, useMemo } from "react";
-import { Box, Button, Typography, Stack, Grid2, Tooltip } from "@mui/material";
-import { Category, ShoppingCart, Business, LocalMall, Home, Store } from "@mui/icons-material";
+import React, { useState } from "react";
+import { Box, Typography, Grid2 } from "@mui/material";
+import { Home, Category, ShoppingCart, Business, LocalMall, Store } from "@mui/icons-material";
+import { useSnackbar } from "../app/components/SnackbarProvider";
+import ThemeSwitch from "../app/components/ThemeSwitch";
 import CategoryList from "../app/components/CategoryList";
 import OrderList from "../app/components/OrderList";
 import PredprList from "../app/components/PredprList";
 import ProdList from "../app/components/ProdList";
-import SpecList from "../app/components/SpecList";
 import SkladList from "../app/components/SkladList";
-import { useSnackbar } from "../app/components/SnackbarProvider";
-import ThemeSwitch from "../app/components/ThemeSwitch";
-import Cart from "../app/components/Cart"; // Импортируем компонент корзины
+import Cart from "../app/components/Cart";
+import Navigation from "../app/components/Navigation";
 
 const NAV_ITEMS = [
   { id: "home", label: "Главная", icon: <Home />, component: null },
@@ -26,16 +26,7 @@ export default function HomePage() {
   const { showSnackbar } = useSnackbar();
   const [darkMode, setDarkMode] = useState(false);
 
-  // Переключение темы
-  const toggleTheme = () => {
-    setDarkMode((prevMode) => !prevMode);
-  };
-
-  // Рендеринг активного компонента
-  const ActiveComponent = useMemo(
-    () => NAV_ITEMS.find((item) => item.id === activeTable)?.component || null,
-    [activeTable]
-  );
+  const ActiveComponent = NAV_ITEMS.find((item) => item.id === activeTable)?.component || null;
 
   return (
     <Box
@@ -49,45 +40,10 @@ export default function HomePage() {
         transition: "all 0.3s ease",
       }}
     >
-      {/* Header */}
-      <Box
-        component="header"
-        sx={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          bgcolor: "background.paper",
-          zIndex: 1000,
-          boxShadow: 1,
-          py: 1,
-        }}
-      >
-        <Box sx={{ textAlign: "center" }}>
-          <Typography variant="h4" component="h1">
-            Управление базой данных
-          </Typography>
-          <Stack direction="row" spacing={2} justifyContent="center" mt={1}>
-            {NAV_ITEMS.map(({ id, label, icon }) => (
-              <Tooltip key={id} title={label} arrow>
-                <Button
-                  variant={activeTable === id ? "contained" : "outlined"}
-                  color="primary"
-                  onClick={() => setActiveTable(id)}
-                  startIcon={icon}
-                >
-                  {label}
-                </Button>
-              </Tooltip>
-            ))}
-          </Stack>
-        </Box>
-      </Box>
+      <Navigation activeTable={activeTable} setActiveTable={setActiveTable} navItems={NAV_ITEMS} />
 
-      {/* Theme Switch */}
-      <ThemeSwitch toggleTheme={toggleTheme} darkMode={darkMode} />
+      <ThemeSwitch toggleTheme={() => setDarkMode((prev) => !prev)} darkMode={darkMode} />
 
-      {/* Main Content */}
       <Box
         component="main"
         sx={{
@@ -99,7 +55,7 @@ export default function HomePage() {
           justifyContent: "center",
         }}
       >
-        <Box sx={{ width: "80%" }}>
+        <Box sx={{ width: { xs: "95%", md: "80%" } }}>
           <Grid2 container spacing={2} justifyContent="center">
             {ActiveComponent ? <ActiveComponent showSnackbar={showSnackbar} /> : <Typography>Выберите таблицу для просмотра</Typography>}
           </Grid2>
