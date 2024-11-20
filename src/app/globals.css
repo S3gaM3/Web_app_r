@@ -1,42 +1,79 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* styles/globals.css */
+
+/* Основные стили для body */
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease; /* Плавный переход для фона и цвета текста */
+  margin: 0; /* Убираем отступы */
+  padding: 0; /* Убираем отступы */
+  box-sizing: border-box; /* Для более удобного управления размерами */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Ссылки */
+a {
+  color: var(--link-color);
+  text-decoration: none; /* Убираем подчеркивание */
+}
+
+a:hover {
+  text-decoration: underline; /* Подчеркивание при наведении */
+}
+
+/* Кнопки */
+button {
+  background-color: var(--button-background);
+  color: var(--foreground);
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border-radius: 4px; /* Скругленные углы для кнопок */
+}
+
+/* Эффект при наведении на кнопку */
+button:hover {
+  background-color: var(--button-hover-background);
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 600px) {
+  body {
+    font-size: 14px; /* Уменьшаем шрифт на мобильных устройствах */
+  }
+
+  button {
+    font-size: 14px; /* Уменьшаем размер шрифта кнопки */
+    padding: 8px 16px; /* Меньше отступы для кнопок на маленьких экранах */
+  }
+
+  /* Стили для ссылок на мобильных устройствах */
+  a {
+    font-size: 14px; /* Меньше шрифт для ссылок */
   }
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+/* Стили для экранов среднего размера */
+@media (max-width: 960px) {
+  body {
+    font-size: 16px; /* Увеличиваем шрифт для более широких экранов */
+  }
+
+  button {
+    font-size: 16px;
+    padding: 12px 24px;
+  }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+/* Стили для больших экранов */
+@media (min-width: 1200px) {
+  body {
+    font-size: 18px; /* Для больших экранов можно использовать больший шрифт */
+  }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+  button {
+    font-size: 18px;
+    padding: 14px 28px; /* Увеличиваем отступы для кнопок */
   }
 }

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "../utils/axiosInstance";
 import {
-  Grid2,
   Button,
   Table,
   TableBody,
@@ -11,62 +10,101 @@ import {
   TableRow,
   Paper,
   TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  CircularProgress,
+  Typography,
 } from "@mui/material";
+
+const API_BASE_URL = "http://localhost:5000/api/prod";
 
 export default function ProdList({ showSnackbar }) {
   const [products, setProducts] = useState([]);
-  const [prodId, setProdId] = useState("");
-  const [prodName, setProdName] = useState("");
-  const [prodPrice, setProdPrice] = useState("");
-  const [prodCategId, setProdCategId] = useState("");
+  const [formData, setFormData] = useState({ id: "", name: "", price: "", categ_id: "" });
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);  // Для блокировки повторных запросов
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
+  // Загрузка списка продуктов
   const fetchProducts = async () => {
+    setIsLoading(true);
     try {
-      const response = await axios.get("http://localhost:5000/api/prod");
+      const response = await axios.get(API_BASE_URL);
       setProducts(response.data);
     } catch (error) {
-      console.error("Error fetching products:", error);
       showSnackbar("Ошибка при загрузке продукции.", "error");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleAddOrUpdateProduct = async () => {
+  // Открытие диалога
+  const openDialog = (product = null) => {
+    if (product) {
+      setFormData({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        categ_id: product.categ_id,
+      });
+    } else {
+      resetForm();
+    }
+    setDialogOpen(true);
+  };
+
+  // Закрытие диалога
+  const closeDialog = () => {
+    setDialogOpen(false);
+    resetForm();
+  };
+
+  // Обработка формы
+  const handleFormSubmit = async () => {
+    const { id, name, price, categ_id } = formData;
+
+    // Валидация
+    if (!name || !price || !categ_id) {
+      showSnackbar("Все поля должны быть заполнены.", "error");
+      return;
+    }
+
     const productData = {
-      name: prodName,
-      price: parseFloat(prodPrice),
-      categ_id: parseInt(prodCategId),
+      name,
+      price: parseFloat(price),
+      categ_id: parseInt(categ_id),
     };
 
+    setIsSubmitting(true); // Блокировка кнопки
+
     try {
-      if (prodId) {
-        // Update product
-        productData.id = parseInt(prodId);
-        await axios.put("http://localhost:5000/api/prod", productData);
+      if (id) {
+        await axios.put(`${API_BASE_URL}/${id}`, productData);
         showSnackbar("Продукт обновлен.", "success");
       } else {
-        // Add new product
-        await axios.post("http://localhost:5000/api/prod", productData);
+        await axios.post(API_BASE_URL, productData);
         showSnackbar("Продукт добавлен.", "success");
       }
 
-      // Reset form
-      setProdId("");
-      setProdName("");
-      setProdPrice("");
-      setProdCategId("");
+      closeDialog();
       fetchProducts();
     } catch (error) {
       showSnackbar("Ошибка при добавлении или обновлении продукта.", "error");
+    } finally {
+      setIsSubmitting(false);  // Снятие блокировки
     }
   };
 
+  // Удаление продукта
   const handleDeleteProduct = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/prod/${id}`);
+      await axios.delete(`${API_BASE_URL}/${id}`);
       showSnackbar("Продукт удален.", "success");
       fetchProducts();
     } catch (error) {
@@ -74,96 +112,102 @@ export default function ProdList({ showSnackbar }) {
     }
   };
 
-  const moveDataForUpdate = (product) => {
-    setProdId(product.id);
-    setProdName(product.name);
-    setProdPrice(product.price);
-    setProdCategId(product.categ_id);
+  // Сброс формы
+  const resetForm = () => {
+    setFormData({ id: "", name: "", price: "", categ_id: "" });
   };
 
   return (
     <div>
-      <Grid2 container spacing={2} justifyContent="center" style={{ marginBottom: "20px" }}>
-        <Grid2 item xs={3}>
+      <Button variant="contained" color="primary" onClick={() => openDialog()} style={{ marginBottom: "20px" }}>
+        Добавить продукт
+      </Button>
+
+      <TableContainer component={Paper}>
+        {isLoading ? (
+          <CircularProgress style={{ margin: "20px auto", display: "block" }} />
+        ) : (
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell><Typography variant="h6">ID</Typography></TableCell>
+                <TableCell><Typography variant="h6">Название</Typography></TableCell>
+                <TableCell><Typography variant="h6">Цена</Typography></TableCell>
+                <TableCell><Typography variant="h6">Категория ID</Typography></TableCell>
+                <TableCell align="right"><Typography variant="h6">Действия</Typography></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {products.map((product) => (
+                <TableRow key={product.id}>
+                  <TableCell>{product.id}</TableCell>
+                  <TableCell>{product.name}</TableCell>
+                  <TableCell>{product.price}</TableCell>
+                  <TableCell>{product.categ_id}</TableCell>
+                  <TableCell align="right">
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => openDialog(product)}
+                    >
+                      Обновить
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => handleDeleteProduct(product.id)}
+                    >
+                      Удалить
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </TableContainer>
+
+      {/* Диалог для добавления/редактирования продукта */}
+      <Dialog open={dialogOpen} onClose={closeDialog}>
+        <DialogTitle>{formData.id ? "Редактировать продукт" : "Добавить продукт"}</DialogTitle>
+        <DialogContent>
           <TextField
             label="Название продукта"
-            value={prodName}
-            onChange={(e) => setProdName(e.target.value)}
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             fullWidth
-            variant="outlined"
+            margin="normal"
           />
-        </Grid2>
-        <Grid2 item xs={3}>
           <TextField
             label="Цена"
             type="number"
-            value={prodPrice}
-            onChange={(e) => setProdPrice(e.target.value)}
+            value={formData.price}
+            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
             fullWidth
-            variant="outlined"
+            margin="normal"
           />
-        </Grid2>
-        <Grid2 item xs={3}>
           <TextField
             label="Категория ID"
             type="number"
-            value={prodCategId}
-            onChange={(e) => setProdCategId(e.target.value)}
+            value={formData.categ_id}
+            onChange={(e) => setFormData({ ...formData, categ_id: e.target.value })}
             fullWidth
-            variant="outlined"
+            margin="normal"
           />
-        </Grid2>
-        <Grid2 item xs={3}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleAddOrUpdateProduct}
-            fullWidth
-          >
-            {prodId ? "Обновить" : "Добавить"}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDialog} color="secondary">
+            Отмена
           </Button>
-        </Grid2>
-      </Grid2>
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Название</TableCell>
-              <TableCell>Цена</TableCell>
-              <TableCell>Категория ID</TableCell>
-              <TableCell align="right">Действия</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {products.map((product) => (
-              <TableRow key={product.id}>
-                <TableCell>{product.id}</TableCell>
-                <TableCell>{product.name}</TableCell>
-                <TableCell>{product.price}</TableCell>
-                <TableCell>{product.categ_id}</TableCell>
-                <TableCell align="right">
-                  <Button
-                    variant="outlined"
-                    color="secondary"
-                    onClick={() => moveDataForUpdate(product)}
-                  >
-                    Обновить
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={() => handleDeleteProduct(product.id)}
-                  >
-                    Удалить
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          <Button
+            onClick={handleFormSubmit}
+            color="primary"
+            disabled={isSubmitting} // Блокировка кнопки при отправке
+          >
+            {isSubmitting ? <CircularProgress size={24} /> : formData.id ? "Обновить" : "Добавить"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
