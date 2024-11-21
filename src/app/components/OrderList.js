@@ -59,7 +59,7 @@ export default function OrderList({ showSnackbar }) {
     setEditableOrder({ id: null, name: "", predpr_id: "" });
   };
 
-  // Валидация данных при редактировании
+  // Валидация данных при редактировании заказа
   const validateEditableOrderData = () => {
     if (!editableOrder.name.trim() || !editableOrder.predpr_id.trim()) {
       showSnackbar("Пожалуйста, заполните все поля.", "warning");
@@ -97,7 +97,7 @@ export default function OrderList({ showSnackbar }) {
     setNewOrder({ name: "", predpr_id: "" });
   };
 
-  // Валидация данных нового заказа
+  // Валидация данных при добавлении нового заказа
   const validateOrderData = () => {
     if (!newOrder.name.trim() || !newOrder.predpr_id.trim()) {
       showSnackbar("Пожалуйста, заполните все поля.", "warning");
@@ -179,13 +179,6 @@ export default function OrderList({ showSnackbar }) {
                   <TableCell>{order.order_name}</TableCell>
                   <TableCell>{order.predpr_name}</TableCell>
                   <TableCell align="right">
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      onClick={() => openEditDialog(order)}
-                    >
-                      Редактировать
-                    </Button>
                     <Button
                       variant="outlined"
                       color="error"

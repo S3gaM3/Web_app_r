@@ -26,6 +26,7 @@ export default function ProdList({ showSnackbar }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);  // Для блокировки повторных запросов
+  const [isDeleting, setIsDeleting] = useState(false);  // Для блокировки кнопки "Удалить"
 
   useEffect(() => {
     fetchProducts();
@@ -65,16 +66,25 @@ export default function ProdList({ showSnackbar }) {
     resetForm();
   };
 
-  // Обработка формы
-  const handleFormSubmit = async () => {
-    const { id, name, price, categ_id } = formData;
-
-    // Валидация
+  // Валидация формы
+  const validateForm = () => {
+    const { name, price, categ_id } = formData;
     if (!name || !price || !categ_id) {
       showSnackbar("Все поля должны быть заполнены.", "error");
-      return;
+      return false;
     }
+    if (parseFloat(price) <= 0) {
+      showSnackbar("Цена должна быть положительным числом.", "error");
+      return false;
+    }
+    return true;
+  };
 
+  // Обработка формы
+  const handleFormSubmit = async () => {
+    if (!validateForm()) return;
+
+    const { id, name, price, categ_id } = formData;
     const productData = {
       name,
       price: parseFloat(price),
@@ -103,12 +113,15 @@ export default function ProdList({ showSnackbar }) {
 
   // Удаление продукта
   const handleDeleteProduct = async (id) => {
+    setIsDeleting(true);
     try {
       await axios.delete(`${API_BASE_URL}/${id}`);
       showSnackbar("Продукт удален.", "success");
       fetchProducts();
     } catch (error) {
       showSnackbar("Ошибка при удалении продукта.", "error");
+    } finally {
+      setIsDeleting(false); // Снятие блокировки кнопки "Удалить"
     }
   };
 
@@ -133,22 +146,23 @@ export default function ProdList({ showSnackbar }) {
                 <TableCell><Typography variant="h6">ID</Typography></TableCell>
                 <TableCell><Typography variant="h6">Название</Typography></TableCell>
                 <TableCell><Typography variant="h6">Цена</Typography></TableCell>
-                <TableCell><Typography variant="h6">Категория ID</Typography></TableCell>
+                <TableCell><Typography variant="h6">Категория</Typography></TableCell>
                 <TableCell align="right"><Typography variant="h6">Действия</Typography></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {products.map((product) => (
                 <TableRow key={product.id}>
-                  <TableCell>{product.id}</TableCell>
-                  <TableCell>{product.name}</TableCell>
+                  <TableCell>{product.product_id}</TableCell>
+                  <TableCell>{product.product_name}</TableCell>
                   <TableCell>{product.price}</TableCell>
-                  <TableCell>{product.categ_id}</TableCell>
+                  <TableCell>{product.category_name}</TableCell>
                   <TableCell align="right">
                     <Button
                       variant="outlined"
                       color="primary"
                       onClick={() => openDialog(product)}
+                      disabled={isSubmitting || isDeleting}
                     >
                       Обновить
                     </Button>
@@ -156,6 +170,7 @@ export default function ProdList({ showSnackbar }) {
                       variant="outlined"
                       color="error"
                       onClick={() => handleDeleteProduct(product.id)}
+                      disabled={isSubmitting || isDeleting}
                     >
                       Удалить
                     </Button>

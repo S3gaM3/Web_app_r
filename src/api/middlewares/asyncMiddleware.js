@@ -1,8 +1,6 @@
-// middlewares/asyncMiddleware.js
-
 const asyncMiddleware = (fn) => (req, res, next) => {
-    Promise.resolve(fn(req, res, next)).catch(next); // Пытаемся выполнить функцию и если ошибка, передаем ее в обработчик ошибок
-  };
-  
-  module.exports = asyncMiddleware;
-  
+  // Выполняем асинхронную функцию и ловим ошибки, передавая их в обработчик ошибок
+  Promise.resolve(fn(req, res, next)).catch(next); // Если ошибка возникла, она передается в next()
+};
+
+module.exports = asyncMiddleware;

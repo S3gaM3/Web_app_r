@@ -101,7 +101,7 @@ export default function CategoryList() {
   return (
     <div>
       {/* Форма добавления категории */}
-      <Grid2 container spacing={2} justifyContent="center" alignItems="center" style={{ marginBottom: "20px" }}>
+      <Grid2 container spacing={2} justifyContent="center" alignItems="center" sx={{ mb: 2 }}>
         <Grid2 item xs={12} sm={8} md={4}>
           <TextField
             label="Новая категория"
@@ -128,8 +128,12 @@ export default function CategoryList() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell><Typography variant="h6">Категория</Typography></TableCell>
-                <TableCell align="right"><Typography variant="h6">Действия</Typography></TableCell>
+                <TableCell>
+                  <Typography variant="h6">Категория</Typography>
+                </TableCell>
+                <TableCell align="right">
+                  <Typography variant="h6">Действия</Typography>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -137,13 +141,21 @@ export default function CategoryList() {
                 <TableRow key={category.id}>
                   <TableCell>{category.name}</TableCell>
                   <TableCell align="right">
-                    <Button variant="outlined" color="primary" onClick={() => {
-                      setEditingCategory(category);
-                      setCategoryName(category.name);
-                    }}>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => {
+                        setEditingCategory(category);
+                        setCategoryName(category.name);
+                      }}
+                    >
                       Редактировать
                     </Button>
-                    <Button variant="outlined" color="error" onClick={() => handleDeleteCategory(category.id)}>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => handleDeleteCategory(category.id)}
+                    >
                       Удалить
                     </Button>
                   </TableCell>
@@ -152,7 +164,7 @@ export default function CategoryList() {
             </TableBody>
           </Table>
         ) : (
-          <Typography style={{ textAlign: "center", padding: "20px" }}>
+          <Typography sx={{ textAlign: "center", padding: "20px" }}>
             Нет доступных категорий.
           </Typography>
         )}
@@ -169,7 +181,7 @@ export default function CategoryList() {
               onChange={(e) => setCategoryName(e.target.value)}
               fullWidth
               variant="outlined"
-              style={{ marginBottom: "10px" }}
+              sx={{ mb: 2 }}
             />
           </DialogContent>
           <DialogActions>

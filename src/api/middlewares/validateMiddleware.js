@@ -1,10 +1,17 @@
-// middlewares/validateMiddleware.js
-
-const { validateCategoryData, validateOrderData, validatePredprData, validateProdData, validateSkladData, validateSpecData } = require("../validators");
+const { 
+  validateCategoryData, 
+  validateOrderData, 
+  validatePredprData, 
+  validateProdData, 
+  validateSkladData, 
+  validateSpecData 
+} = require("../validators");
 
 const validate = (type) => {
   return (req, res, next) => {
     let validationError;
+    
+    // Проверяем тип данных и вызываем соответствующую функцию для валидации
     switch (type) {
       case "category":
         validationError = validateCategoryData(req.body.name);
@@ -25,13 +32,16 @@ const validate = (type) => {
         validationError = validateSpecData(req.body.order_id, req.body.prod_id, req.body.kol);
         break;
       default:
-        return next();
+        return next(); // Если тип не найден, продолжаем обработку без валидации
     }
     
+    // Если ошибка валидации, возвращаем 400 с сообщением
     if (validationError) {
       return res.status(400).json({ error: validationError });
     }
-    next(); // Если нет ошибок, переходим к следующему мидлвару
+    
+    // Если валидация прошла, переходим к следующему мидлвару
+    next();
   };
 };
 

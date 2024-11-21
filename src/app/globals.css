@@ -1,24 +1,21 @@
-/* styles/globals.css */
-
 /* Основные стили для body */
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease; /* Плавный переход для фона и цвета текста */
-  margin: 0; /* Убираем отступы */
-  padding: 0; /* Убираем отступы */
-  box-sizing: border-box; /* Для более удобного управления размерами */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh; /* Чтобы экран не был пустым на маленьких экранах */
 }
 
-/* Ссылки */
-a {
-  color: var(--link-color);
-  text-decoration: none; /* Убираем подчеркивание */
-}
-
-a:hover {
-  text-decoration: underline; /* Подчеркивание при наведении */
+/* Контейнер для всех элементов */
+.container {
+  width: 100%;
+  max-width: 1200px; /* Ограничиваем максимальную ширину */
+  margin: 0 auto; /* Выравнивание по центру */
+  padding: 0 20px;
 }
 
 /* Кнопки */
@@ -26,54 +23,130 @@ button {
   background-color: var(--button-background);
   color: var(--foreground);
   border: none;
-  padding: 10px 20px;
+  padding: 12px 20px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  border-radius: 4px; /* Скругленные углы для кнопок */
+  border-radius: 4px;
 }
 
-/* Эффект при наведении на кнопку */
 button:hover {
   background-color: var(--button-hover-background);
 }
 
-/* Адаптация для мобильных устройств */
+/* Адаптация для мобильных устройств (max-width: 600px) */
 @media (max-width: 600px) {
   body {
-    font-size: 14px; /* Уменьшаем шрифт на мобильных устройствах */
+    font-size: 14px;
+  }
+
+  .container {
+    padding: 0 10px; /* Меньше отступов для мобильных */
   }
 
   button {
-    font-size: 14px; /* Уменьшаем размер шрифта кнопки */
-    padding: 8px 16px; /* Меньше отступы для кнопок на маленьких экранах */
+    font-size: 14px;
+    padding: 10px 18px;
   }
 
-  /* Стили для ссылок на мобильных устройствах */
-  a {
-    font-size: 14px; /* Меньше шрифт для ссылок */
+  .product-list {
+    display: block; /* Продукты занимают всю ширину */
+    padding: 10px;
+  }
+
+  .product-item {
+    margin-bottom: 20px;
+  }
+
+  .cart-table {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .cart-table table {
+    width: 100%;
+    table-layout: fixed;
   }
 }
 
-/* Стили для экранов среднего размера */
+/* Адаптивные стили для экранов среднего размера (max-width: 960px) */
 @media (max-width: 960px) {
   body {
-    font-size: 16px; /* Увеличиваем шрифт для более широких экранов */
+    font-size: 16px;
   }
 
-  button {
-    font-size: 16px;
-    padding: 12px 24px;
+  .product-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .product-item {
+    margin-bottom: 15px;
+  }
+
+  .cart-table {
+    overflow-x: auto;
   }
 }
 
-/* Стили для больших экранов */
+/* Стили для больших экранов (min-width: 1200px) */
 @media (min-width: 1200px) {
   body {
-    font-size: 18px; /* Для больших экранов можно использовать больший шрифт */
+    font-size: 18px;
   }
 
-  button {
-    font-size: 18px;
-    padding: 14px 28px; /* Увеличиваем отступы для кнопок */
+  .product-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
   }
+
+  .cart-table {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .container {
+    padding: 0 30px; /* Увеличиваем отступы на больших экранах */
+  }
+}
+
+/* Дополнительные стили для flex-контейнеров */
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Пространство между элементами */
+}
+
+.flex-item {
+  flex: 1 1 30%; /* Элементы займут минимум 30% ширины контейнера */
+  min-width: 280px; /* Минимальная ширина элемента */
+}
+
+/* Пример стилей для заголовков */
+h1, h2, h3 {
+  margin-bottom: 20px;
+}
+
+/* Стили для таблиц */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background-color: var(--header-background);
+}
+
+tr:nth-child(even) {
+  background-color: var(--row-background);
+}
+
+tr:nth-child(odd) {
+  background-color: var(--row-alt-background);
 }

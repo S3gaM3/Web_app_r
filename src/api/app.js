@@ -15,17 +15,17 @@ const app = express();
 app.use(corsMiddleware); // Применяем CORS мидлвар
 app.use(express.json()); // Для обработки JSON в запросах
 
-// Подключение маршрутов с валидацией
-app.use("/api/categ", asyncMiddleware(CategRoutes)); // Категории
-app.use("/api/order", asyncMiddleware(OrderRoutes)); // Заказы
-app.use("/api/predpr", asyncMiddleware(PredprRoutes)); // Организации
-app.use("/api/prod", asyncMiddleware(ProdRoutes)); // Продукты
-app.use("/api/sklad", asyncMiddleware(SkladRoutes)); // Склады
-app.use("/api/spec", asyncMiddleware(SpecRoutes)); // Спецификации
+// Подключение маршрутов
+app.use("/api/categ", CategRoutes); // Категории
+app.use("/api/order", OrderRoutes); // Заказы
+app.use("/api/predpr", PredprRoutes); // Организации
+app.use("/api/prod", ProdRoutes); // Продукты
+app.use("/api/sklad", SkladRoutes); // Склады
+app.use("/api/spec", SpecRoutes); // Спецификации
 
 // Применение валидации для POST/PUT запросов
-app.post("/api/order", validateMiddleware("order"), asyncMiddleware(OrderRoutes)); // Валидация для POST на заказ
-app.put("/api/order/:id", validateMiddleware("order"), asyncMiddleware(OrderRoutes)); // Валидация для PUT на заказ
+app.post("/api/order", validateMiddleware("order"), asyncMiddleware(OrderRoutes.post)); // Валидация для POST на заказ
+app.put("/api/order/:id", validateMiddleware("order"), asyncMiddleware(OrderRoutes.put)); // Валидация для PUT на заказ
 
 // Подключаем обработчик ошибок, он должен быть последним
 app.use(errorHandler);

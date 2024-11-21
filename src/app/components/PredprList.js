@@ -60,10 +60,19 @@ export default function PredprList({ showSnackbar }) {
     setNewPredprAddress("");
   };
 
-  // Обработка добавления предприятия
-  const handleAddPredpr = async () => {
+  // Валидация данных нового предприятия
+  const validatePredprData = () => {
     if (!newPredprName.trim() || !newPredprAddress.trim()) {
       showSnackbar("Заполните все поля.", "warning");
+      return false;
+    }
+    return true;
+  };
+
+  // Обработка добавления предприятия
+  const handleAddPredpr = async () => {
+    // Валидация данных
+    if (!validatePredprData()) {
       return;
     }
 
@@ -71,7 +80,7 @@ export default function PredprList({ showSnackbar }) {
       await axios.post(API_BASE_URL, { name: newPredprName, address: newPredprAddress });
       showSnackbar("Предприятие добавлено.", "success");
       closeAddDialog();
-      fetchPredpr();
+      fetchPredpr(); // Обновляем список предприятий
     } catch (error) {
       showSnackbar("Ошибка при добавлении предприятия.", "error");
     }
@@ -95,7 +104,7 @@ export default function PredprList({ showSnackbar }) {
       await axios.delete(`${API_BASE_URL}/${selectedPredprId}`);
       showSnackbar("Предприятие удалено.", "success");
       closeDeleteDialog();
-      fetchPredpr();
+      fetchPredpr(); // Обновляем список предприятий
     } catch (error) {
       showSnackbar("Ошибка при удалении предприятия.", "error");
     }

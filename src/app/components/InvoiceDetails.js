@@ -1,6 +1,11 @@
 import React from "react";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography } from "@mui/material";
 
+const formatCurrency = (amount) => new Intl.NumberFormat("ru-RU", {
+  style: "currency",
+  currency: "RUB",
+}).format(amount);
+
 const InvoiceDetails = ({ invoice, showSnackbar }) => {
   const totalAmount = invoice.items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -27,9 +32,9 @@ const InvoiceDetails = ({ invoice, showSnackbar }) => {
             {invoice.items.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>{item.name}</TableCell>
-                <TableCell>{item.price} ₽</TableCell>
+                <TableCell>{formatCurrency(item.price)}</TableCell>
                 <TableCell>{item.quantity}</TableCell>
-                <TableCell>{item.price * item.quantity} ₽</TableCell>
+                <TableCell>{formatCurrency(item.price * item.quantity)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -37,7 +42,7 @@ const InvoiceDetails = ({ invoice, showSnackbar }) => {
       </TableContainer>
 
       <Typography variant="h6" sx={{ marginTop: 2 }}>
-        Общая сумма: {totalAmount} ₽
+        Общая сумма: {formatCurrency(totalAmount)}
       </Typography>
 
       <Button
@@ -45,6 +50,7 @@ const InvoiceDetails = ({ invoice, showSnackbar }) => {
         color="primary"
         onClick={() => showSnackbar(`Счет № ${invoice.number} создан!`, "success")}
         sx={{ marginTop: 2 }}
+        disabled={invoice.items.length === 0}  // Отключить кнопку, если нет товаров
       >
         Завершить заказ
       </Button>
