@@ -131,9 +131,9 @@ export default function ProdList({ showSnackbar }) {
             <TableHead>
               <TableRow>
                 <TableCell><Typography variant="h6">ID</Typography></TableCell>
+                <TableCell><Typography variant="h6">Категория</Typography></TableCell>
                 <TableCell><Typography variant="h6">Название</Typography></TableCell>
                 <TableCell><Typography variant="h6">Цена</Typography></TableCell>
-                <TableCell><Typography variant="h6">Категория ID</Typography></TableCell>
                 <TableCell align="right"><Typography variant="h6">Действия</Typography></TableCell>
               </TableRow>
             </TableHead>
@@ -141,9 +141,9 @@ export default function ProdList({ showSnackbar }) {
               {products.map((product) => (
                 <TableRow key={product.id}>
                   <TableCell>{product.id}</TableCell>
+                  <TableCell>{product.category_name}</TableCell>
                   <TableCell>{product.name}</TableCell>
                   <TableCell>{product.price}</TableCell>
-                  <TableCell>{product.categ_id}</TableCell>
                   <TableCell align="right">
                     <Button
                       variant="outlined"
