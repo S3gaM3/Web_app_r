@@ -8,8 +8,20 @@ const router = express.Router();
 
 // Получение всех продуктов
 router.get("/", asyncMiddleware(async (req, res) => {
-  const [rows] = await db.query("SELECT * FROM prod");
-  res.json(rows);
+  const query = `
+    SELECT 
+      p.id AS id, 
+      p.name AS name, 
+      p.price, 
+      c.name AS category_name
+    FROM 
+      prod p
+    LEFT JOIN 
+      categ c ON p.categ_id = c.id
+    ORDER BY p.id;
+  `;
+  const [rows] = await db.query(query);
+  res.status(200).json(rows);
 }));
 
 // Добавление нового продукта
