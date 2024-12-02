@@ -6,12 +6,10 @@ function Navigation({ activeTable, setActiveTable, navItems }) {
     <Box
       component="header"
       sx={{
-        position: "fixed",
         top: 0,
         left: 0,
         width: "100%",
         bgcolor: "background.paper",
-        zIndex: 1000,
         boxShadow: 1,
         py: 1,
         display: "flex",
@@ -48,13 +46,13 @@ function Navigation({ activeTable, setActiveTable, navItems }) {
                 onClick={() => setActiveTable(id)}
                 startIcon={icon}
                 sx={{
-                  transition: "all 0.3s ease",
+                  transition: "all 0.1s ease",
                   "&:hover": {
                     transform: "scale(1.05)", // Анимация при наведении
                   },
-                  fontSize: { xs: "0.75rem", sm: "1rem", md: "1.25rem" }, // Размер шрифта для кнопок
+                  fontSize: { xs: "0.5rem", sm: "0.75rem", md: "1rem" }, // Размер шрифта для кнопок
                   py: { xs: 1, sm: 1.5 }, // Паддинг для кнопок на мобильных и больших экранах
-                  px: { xs: 2, sm: 3 },
+                  px: { xs: 1, sm: 2 },
                   minWidth: "auto", // Убираем фиксированную ширину
                 }}
                 aria-label={label} // Атрибут для улучшения доступности

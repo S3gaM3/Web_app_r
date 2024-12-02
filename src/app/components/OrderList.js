@@ -73,7 +73,7 @@ export default function OrderList({ showSnackbar }) {
     if (!validateEditableOrderData()) return;
 
     try {
-      await axios.put(`${API_BASE_URL}/${editableOrder.id}`, {
+      await axios.put('${API_BASE_URL}/${editableOrder.id}', {
         name: editableOrder.name,
         predpr_id: editableOrder.predpr_id,
       });
@@ -135,7 +135,7 @@ export default function OrderList({ showSnackbar }) {
   // Удаление заказа
   const handleDeleteOrder = async () => {
     try {
-      await axios.delete(`${API_BASE_URL}/${selectedOrderId}`);
+      await axios.delete('${API_BASE_URL}/${selectedOrderId}');
       showSnackbar("Заказ удален.", "success");
       closeDeleteDialog();
       fetchOrders();

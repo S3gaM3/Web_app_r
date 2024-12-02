@@ -37,7 +37,7 @@ export default function HomePage() {
         minHeight: "100vh",
         bgcolor: darkMode ? "background.default" : "background.paper",
         color: darkMode ? "text.primary" : "text.secondary",
-        transition: "all 0.3s ease",
+        transition: "all 0.1s ease",
       }}
     >
       <Navigation activeTable={activeTable} setActiveTable={setActiveTable} navItems={NAV_ITEMS} />
@@ -49,7 +49,7 @@ export default function HomePage() {
         sx={{
           width: "100%",
           flexGrow: 1,
-          pt: "160px",
+          pt: "35px",
           px: 3,
           display: "flex",
           justifyContent: "center",

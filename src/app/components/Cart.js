@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "../utils/axiosInstance";
 import {
   Button,
@@ -21,23 +21,40 @@ import {
 import { Delete } from "@mui/icons-material";
 
 const Cart = ({ showSnackbar }) => {
-  const [products, setProducts] = useState([]); // Продукты из базы данных
-  const [cart, setCart] = useState([]); // Продукты в корзине
+  const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState(() => {
+    // Загружаем данные из Local Storage при первой загрузке
+    const savedCart = localStorage.getItem("cart");
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
   const [selectedProduct, setSelectedProduct] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // Для загрузки истории заказов
-  const [orderHistory, setOrderHistory] = useState([]); // История заказов
-  const [orderName, setOrderName] = useState(""); // Имя заказа
-  const [predprId, setPredprId] = useState(""); // ID выбранного предприятия
-  const [enterprises, setEnterprises] = useState([]); // Список предприятий
-  const [orderCount, setOrderCount] = useState(0); // Счетчик заказов
+  const [isLoading, setIsLoading] = useState(false);
+  const [orderHistory, setOrderHistory] = useState(() => {
+    // Загружаем историю заказов из Local Storage
+    const savedHistory = localStorage.getItem("orderHistory");
+    return savedHistory ? JSON.parse(savedHistory) : [];
+  });
+  const [orderName, setOrderName] = useState("");
+  const [predprId, setPredprId] = useState("");
+  const [enterprises, setEnterprises] = useState([]);
+  const [orderCount, setOrderCount] = useState(0);
 
   useEffect(() => {
-    fetchProducts(); // Загружаем список продуктов
-    fetchOrderHistory(); // Загружаем историю заказов
-    fetchEnterprises(); // Загружаем список предприятий
+    fetchProducts();
+    fetchEnterprises();
   }, []);
+
+  useEffect(() => {
+    // Сохраняем корзину в Local Storage при её обновлении
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
+
+  useEffect(() => {
+    // Сохраняем историю заказов в Local Storage при её обновлении
+    localStorage.setItem("orderHistory", JSON.stringify(orderHistory));
+  }, [orderHistory]);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -48,19 +65,6 @@ const Cart = ({ showSnackbar }) => {
       showSnackbar("Ошибка при загрузке продуктов.", "error");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchOrderHistory = async () => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get("http://localhost:5000/api/order");
-      setOrderHistory(response.data);
-      setOrderCount(response.data.length); // Обновляем счетчик заказов
-    } catch (error) {
-      showSnackbar("Ошибка при загрузке истории заказов.", "error");
-    } finally {
-      setIsLoading(false); // Завершаем индикатор загрузки
     }
   };
 
@@ -86,9 +90,9 @@ const Cart = ({ showSnackbar }) => {
       newCart.push({ ...product, quantity });
     }
 
-    setCart(newCart); // Обновляем корзину
-    setSelectedProduct(""); // Очищаем выбранный продукт
-    setQuantity(1); // Сбрасываем количество
+    setCart(newCart);
+    setSelectedProduct("");
+    setQuantity(1);
     showSnackbar("Продукт добавлен в корзину.", "success");
   };
 
@@ -111,7 +115,7 @@ const Cart = ({ showSnackbar }) => {
   const generateOrderName = () => {
     const date = new Date();
     const formattedDate = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
-    const time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`; // Время
+    const time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
     return `Счет № ${orderCount + 1} от ${formattedDate} в ${time}`;
   };
 
@@ -121,37 +125,34 @@ const Cart = ({ showSnackbar }) => {
       return;
     }
 
-    const generatedOrderName = generateOrderName(); // Генерация имени счета
-    setOrderName(generatedOrderName); // Устанавливаем имя заказа
-
-    if (!orderName) {
-      showSnackbar("Пожалуйста, введите имя заказа.", "error");
-      return;
-    }
+    const generatedOrderName = generateOrderName();
 
     if (!predprId) {
       showSnackbar("Выберите предприятие.", "error");
       return;
     }
 
-    const orderData = {
-      name: generatedOrderName,
+    const newOrder = {
+      order_name: generatedOrderName,
+      predpr_name: enterprises.find((e) => e.id === predprId)?.name || "Не указано",
       products: cart,
       total: getTotal(),
-      date: new Date(),
-      predpr_id: predprId,
     };
 
-    try {
-      await axios.post("http://localhost:5000/api/order", orderData);
-      showSnackbar("Заказ размещен успешно!", "success");
-      setCart([]); // Очищаем корзину после размещения заказа
-      setOrderName(""); // Очищаем имя заказа
-      setPredprId(""); // Очищаем выбранное предприятие
-      fetchOrderHistory(); // Обновляем историю заказов
-    } catch (error) {
-      showSnackbar("Ошибка при размещении заказа.", "error");
-    }
+    setOrderHistory([...orderHistory, newOrder]); // Добавляем заказ в историю
+    setCart([]); // Очищаем корзину
+    setOrderName("");
+    setPredprId("");
+    setOrderCount(orderCount + 1); // Увеличиваем счетчик заказов
+    showSnackbar("Заказ размещен успешно!", "success");
+  };
+
+  const removeOrder = (orderName) => {
+    // Фильтруем историю заказов, удаляя заказ с указанным name
+    const updatedHistory = orderHistory.filter(order => order.order_name !== orderName);
+    setOrderHistory(updatedHistory); // Обновляем состояние
+    localStorage.setItem("orderHistory", JSON.stringify(updatedHistory)); // Обновляем localStorage
+    showSnackbar("Заказ удален из истории.", "success");
   };
 
   return (
@@ -171,7 +172,6 @@ const Cart = ({ showSnackbar }) => {
         </Select>
       </FormControl>
 
-      {/* Количество */}
       <TextField
         label="Количество"
         type="number"
@@ -185,16 +185,6 @@ const Cart = ({ showSnackbar }) => {
       <Button variant="contained" color="primary" onClick={addToCart}>
         Добавить в корзину
       </Button>
-
-      {/* Имя заказа */}
-      <TextField
-        label="Имя заказа"
-        value={orderName}
-        onChange={(e) => setOrderName(e.target.value)}
-        fullWidth
-        margin="normal"
-        disabled
-      />
 
       {/* Выбор предприятия */}
       <FormControl fullWidth margin="normal">
@@ -211,7 +201,7 @@ const Cart = ({ showSnackbar }) => {
         </Select>
       </FormControl>
 
-      {/* Отображение корзины */}
+      {/* Корзина */}
       <TableContainer component={Paper} style={{ marginTop: "20px" }}>
         <Table>
           <TableHead>
@@ -248,12 +238,10 @@ const Cart = ({ showSnackbar }) => {
         </Table>
       </TableContainer>
 
-      {/* Общая сумма */}
       <Typography variant="h6" style={{ marginTop: "20px" }}>
         Общая сумма: {getTotal()}₽
       </Typography>
 
-      {/* Кнопка заказать */}
       <Button
         variant="contained"
         color="secondary"
@@ -264,35 +252,51 @@ const Cart = ({ showSnackbar }) => {
       </Button>
 
       {/* История заказов */}
-      <Typography variant="h5" style={{ marginTop: "40px" }}>
-        История заказов:
-      </Typography>
-      <TableContainer component={Paper} style={{ marginBottom: "20px" }}>
-        {isLoading ? (
-          <CircularProgress style={{ margin: "20px auto", display: "block" }} />
-        ) : (
-          <Table>
-            <TableHead>
-              <TableRow>
+    <Typography variant="h5" style={{ marginTop: "40px" }}>
+      История заказов:
+    </Typography>
+    <TableContainer component={Paper} style={{ marginBottom: "20px" }}>
+      {isLoading ? (
+        <CircularProgress style={{ margin: "20px auto", display: "block" }} />
+      ) : (
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Название заказа</TableCell>
+              <TableCell>Предприятие</TableCell>
+              <TableCell>Продукты</TableCell>
+              <TableCell>Действия</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {orderHistory.map((order) => (
+              <TableRow key={order.order_name}>
+                <TableCell>{order.order_name}</TableCell>
+                <TableCell>{order.predpr_name}</TableCell>
                 <TableCell>
-                  <Typography variant="h6">Название заказа</Typography>
+                  {order.products?.length > 0 ? (
+                    <ul>
+                      {order.products.map((product, idx) => (
+                        <li key={idx}>
+                          {product.name} - {product.quantity} шт. ({product.price}₽)
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    "Продукты отсутствуют"
+                  )}
                 </TableCell>
                 <TableCell>
-                  <Typography variant="h6">Предприятие</Typography>
+                  <IconButton onClick={() => removeOrder(order.order_name)}>
+                    <Delete />
+                  </IconButton>
                 </TableCell>
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {orderHistory.map((order) => (
-                <TableRow key={order.order_id}>
-                  <TableCell>{order.order_name}</TableCell>
-                  <TableCell>{order.predpr_name}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
-      </TableContainer>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+    </TableContainer>
     </div>
   );
 };
